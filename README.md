@@ -6,6 +6,9 @@ used, or an explicit refusal if the paper doesn't cover the question.
 
 Built on the Gemini and Pinecone SDKs directly, without a RAG framework.
 
+**[Try it live](https://REPLACE-WITH-YOUR-URL.streamlit.app)** - free-tier demo, quota
+shared across visitors and reset daily. Clone it below to run without limits.
+
 ![Demo](docs/demo.gif)
 
 ---

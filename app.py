@@ -15,6 +15,7 @@ import streamlit as st
 
 from agent_core import run_pipeline
 from config import ConfigError, load_settings
+from llm import LLMError
 from tools import NoResultsError, PDFError
 
 logging.basicConfig(level=logging.INFO)
@@ -35,6 +36,12 @@ def main() -> None:
     st.caption(
         "Ask a research question. The agent searches arXiv, picks the single most "
         "relevant paper, reads it, and answers from its contents -- with citations."
+    )
+    st.info(
+        "Free-tier demo - the API quota is shared across everyone using this page "
+        "and resets daily. If it is exhausted, clone the repo and run it with your "
+        "own free key.",
+        icon=":material/info:",
     )
 
     try:
@@ -78,6 +85,19 @@ def main() -> None:
     except PDFError as exc:
         status.update(label="Could not read the paper", state="error")
         st.warning(f"{exc}\n\nTry rephrasing so a different paper is selected.")
+        return
+    except LLMError as exc:
+        status.update(label="Rate limited", state="error")
+        if "429" in str(exc) or "RESOURCE_EXHAUSTED" in str(exc):
+            st.warning(
+                "**This demo has hit its free-tier API quota.**\n\n"
+                "It runs on a free Gemini key shared by everyone visiting this page, "
+                "so the daily allowance goes quickly. Quotas reset every 24 hours.\n\n"
+                "To run it without limits, clone the repo and use your own key - "
+                "setup takes about two minutes and both keys are free."
+            )
+        else:
+            st.error(f"The language model call failed: {exc}")
         return
     except Exception as exc:                       # noqa: BLE001 -- UI must never traceback
         status.update(label="Something went wrong", state="error")
